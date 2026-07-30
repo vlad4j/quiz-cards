@@ -5,6 +5,7 @@ export const cards = pgTable("cards", {
   language: text("language").notNull(),
   foreignText: text("foreign_text").notNull(),
   englishText: text("english_text").notNull(),
+  imageUrls: text("image_urls").array().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

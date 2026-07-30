@@ -64,8 +64,10 @@ export function QuizSession({
                   key={card.id}
                   className="rounded-xl border border-red-400/40 p-4"
                 >
-                  <p className="font-medium break-words">{card.foreignText}</p>
-                  <p className="text-sm opacity-70 break-words">
+                  <p className="font-medium break-words whitespace-pre-wrap">
+                    {card.foreignText}
+                  </p>
+                  <p className="text-sm opacity-70 break-words whitespace-pre-wrap">
                     {card.englishText}
                   </p>
                 </li>
@@ -128,14 +130,29 @@ export function QuizSession({
         <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
           {promptSide === "foreign" ? card.language : "English"}
         </p>
-        <p className="text-2xl font-bold break-words">{prompt}</p>
+        <p className="text-2xl font-bold break-words whitespace-pre-wrap">
+          {prompt}
+        </p>
+        {card.imageUrls.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {card.imageUrls.map((url) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={url}
+                src={url}
+                alt=""
+                className="max-h-40 max-w-full rounded-lg border border-black/10 dark:border-white/15 object-contain"
+              />
+            ))}
+          </div>
+        )}
         {revealed && (
           <>
             <hr className="w-16 border-black/15 dark:border-white/20" />
             <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
               {promptSide === "foreign" ? "English" : card.language}
             </p>
-            <p className="text-2xl font-bold break-words text-indigo-600 dark:text-indigo-400">
+            <p className="text-2xl font-bold break-words whitespace-pre-wrap text-indigo-600 dark:text-indigo-400">
               {answer}
             </p>
           </>
