@@ -2,17 +2,23 @@ import Link from "next/link";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { cards } from "@/db/schema";
+import { DbUnavailable } from "../db-unavailable";
 
 export const dynamic = "force-dynamic";
 
 export default async function QuizSetupPage() {
-  const languages = await db
-    .select({
-      language: cards.language,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(cards)
-    .groupBy(cards.language);
+  let languages;
+  try {
+    languages = await db
+      .select({
+        language: cards.language,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(cards)
+      .groupBy(cards.language);
+  } catch {
+    return <DbUnavailable />;
+  }
 
   const total = languages.reduce((sum, l) => sum + l.count, 0);
 

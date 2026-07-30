@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { cards } from "@/db/schema";
 import { QuizSession, type Direction } from "./session";
+import { DbUnavailable } from "../../db-unavailable";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +25,17 @@ export default async function QuizPlayPage({
     ? (params.direction as Direction)
     : "foreign-to-english";
 
-  const quizCards = await db
-    .select()
-    .from(cards)
-    .where(language ? eq(cards.language, language) : undefined)
-    .orderBy(sql`random()`)
-    .limit(count);
+  let quizCards;
+  try {
+    quizCards = await db
+      .select()
+      .from(cards)
+      .where(language ? eq(cards.language, language) : undefined)
+      .orderBy(sql`random()`)
+      .limit(count);
+  } catch {
+    return <DbUnavailable />;
+  }
 
   if (quizCards.length === 0) {
     return (

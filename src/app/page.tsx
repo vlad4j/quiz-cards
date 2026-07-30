@@ -3,14 +3,17 @@ import { db } from "@/db";
 import { cards } from "@/db/schema";
 import { AddCardForm } from "./add-card-form";
 import { CardItem } from "./card-item";
+import { DbUnavailable } from "./db-unavailable";
 
 export const dynamic = "force-dynamic";
 
 export default async function CardsPage() {
-  const allCards = await db
-    .select()
-    .from(cards)
-    .orderBy(desc(cards.createdAt));
+  let allCards;
+  try {
+    allCards = await db.select().from(cards).orderBy(desc(cards.createdAt));
+  } catch {
+    return <DbUnavailable />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
