@@ -14,11 +14,20 @@ function requireField(formData: FormData, name: string): string {
   return value.trim();
 }
 
-async function uploadNewImages(formData: FormData): Promise<string[]> {
+async function uploadNewImages(
+  formData: FormData,
+  field: string
+): Promise<string[]> {
   const files = formData
-    .getAll("images")
+    .getAll(field)
     .filter((f): f is File => f instanceof File && f.size > 0);
   return Promise.all(files.map(uploadImage));
+}
+
+function keptUrls(formData: FormData, field: string): string[] {
+  return formData
+    .getAll(field)
+    .filter((v): v is string => typeof v === "string");
 }
 
 export async function createCard(formData: FormData) {
@@ -26,22 +35,28 @@ export async function createCard(formData: FormData) {
     language: requireField(formData, "language"),
     foreignText: requireField(formData, "foreignText"),
     englishText: requireField(formData, "englishText"),
-    imageUrls: await uploadNewImages(formData),
+    foreignImageUrls: await uploadNewImages(formData, "foreignImages"),
+    englishImageUrls: await uploadNewImages(formData, "englishImages"),
   });
   revalidatePath("/");
 }
 
 export async function updateCard(id: string, formData: FormData) {
   const [existing] = await db
-    .select({ imageUrls: cards.imageUrls })
+    .select({
+      foreignImageUrls: cards.foreignImageUrls,
+      englishImageUrls: cards.englishImageUrls,
+    })
     .from(cards)
     .where(eq(cards.id, id));
   if (!existing) throw new Error("Card not found");
 
-  const kept = formData
-    .getAll("keepImageUrls")
-    .filter((v): v is string => typeof v === "string");
-  const removed = existing.imageUrls.filter((u) => !kept.includes(u));
+  const keptForeign = keptUrls(formData, "keepForeignImageUrls");
+  const keptEnglish = keptUrls(formData, "keepEnglishImageUrls");
+  const removed = [
+    ...existing.foreignImageUrls.filter((u) => !keptForeign.includes(u)),
+    ...existing.englishImageUrls.filter((u) => !keptEnglish.includes(u)),
+  ];
 
   await db
     .update(cards)
@@ -49,7 +64,14 @@ export async function updateCard(id: string, formData: FormData) {
       language: requireField(formData, "language"),
       foreignText: requireField(formData, "foreignText"),
       englishText: requireField(formData, "englishText"),
-      imageUrls: [...kept, ...(await uploadNewImages(formData))],
+      foreignImageUrls: [
+        ...keptForeign,
+        ...(await uploadNewImages(formData, "foreignImages")),
+      ],
+      englishImageUrls: [
+        ...keptEnglish,
+        ...(await uploadNewImages(formData, "englishImages")),
+      ],
     })
     .where(eq(cards.id, id));
 
@@ -59,11 +81,19 @@ export async function updateCard(id: string, formData: FormData) {
 
 export async function deleteCard(id: string) {
   const [existing] = await db
-    .select({ imageUrls: cards.imageUrls })
+    .select({
+      foreignImageUrls: cards.foreignImageUrls,
+      englishImageUrls: cards.englishImageUrls,
+    })
     .from(cards)
     .where(eq(cards.id, id));
 
   await db.delete(cards).where(eq(cards.id, id));
-  if (existing) await deleteImages(existing.imageUrls);
+  if (existing) {
+    await deleteImages([
+      ...existing.foreignImageUrls,
+      ...existing.englishImageUrls,
+    ]);
+  }
   revalidatePath("/");
 }

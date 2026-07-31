@@ -15,9 +15,13 @@ export default async function CardsPage() {
     return <DbUnavailable />;
   }
 
+  const languages = Array.from(
+    new Set(["Luxembourgish", ...allCards.map((c) => c.language)])
+  ).sort();
+
   return (
     <div className="flex flex-col gap-6">
-      <AddCardForm />
+      <AddCardForm languages={languages} />
 
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide opacity-60">
@@ -30,7 +34,7 @@ export default async function CardsPage() {
         ) : (
           <ul className="flex flex-col gap-2">
             {allCards.map((card) => (
-              <CardItem key={card.id} card={card} />
+              <CardItem key={card.id} card={card} languages={languages} />
             ))}
           </ul>
         )}

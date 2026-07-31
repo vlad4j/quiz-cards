@@ -53,8 +53,8 @@ export function usePastedImages() {
   }, []);
 
   const appendToFormData = useCallback(
-    (formData: FormData, current: PastedImage[]) => {
-      current.forEach((img) => formData.append("images", img.file));
+    (formData: FormData, current: PastedImage[], field: string) => {
+      current.forEach((img) => formData.append(field, img.file));
     },
     []
   );

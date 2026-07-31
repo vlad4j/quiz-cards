@@ -9,6 +9,23 @@ export type Direction = "foreign-to-english" | "english-to-foreign" | "mixed";
 
 type PromptSide = "foreign" | "english";
 
+function QuizImages({ urls }: { urls: string[] }) {
+  if (urls.length === 0) return null;
+  return (
+    <div className="flex w-full flex-wrap items-center justify-center gap-2">
+      {urls.map((url) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={url}
+          src={url}
+          alt=""
+          className="max-h-96 w-full max-w-full rounded-lg border border-black/10 dark:border-white/15 object-contain"
+        />
+      ))}
+    </div>
+  );
+}
+
 export function QuizSession({
   cards,
   direction,
@@ -104,6 +121,10 @@ export function QuizSession({
   const promptSide = promptSides[index];
   const prompt = promptSide === "foreign" ? card.foreignText : card.englishText;
   const answer = promptSide === "foreign" ? card.englishText : card.foreignText;
+  const promptImages =
+    promptSide === "foreign" ? card.foreignImageUrls : card.englishImageUrls;
+  const answerImages =
+    promptSide === "foreign" ? card.englishImageUrls : card.foreignImageUrls;
 
   function grade(correct: boolean) {
     setResults((prev) => [...prev, correct]);
@@ -133,19 +154,7 @@ export function QuizSession({
         <p className="text-2xl font-bold break-words whitespace-pre-wrap">
           {prompt}
         </p>
-        {card.imageUrls.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2">
-            {card.imageUrls.map((url) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={url}
-                src={url}
-                alt=""
-                className="max-h-40 max-w-full rounded-lg border border-black/10 dark:border-white/15 object-contain"
-              />
-            ))}
-          </div>
-        )}
+        <QuizImages urls={promptImages} />
         {revealed && (
           <>
             <hr className="w-16 border-black/15 dark:border-white/20" />
@@ -155,6 +164,7 @@ export function QuizSession({
             <p className="text-2xl font-bold break-words whitespace-pre-wrap text-indigo-600 dark:text-indigo-400">
               {answer}
             </p>
+            <QuizImages urls={answerImages} />
           </>
         )}
       </div>
