@@ -130,6 +130,16 @@ export function CardForm({
         side={foreign}
         textareaRef={foreignInputRef}
       />
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium">LOD.lu link (optional)</span>
+        <input
+          type="url"
+          name="lodUrl"
+          placeholder="https://lod.lu/artikel/..."
+          defaultValue={card?.lodUrl ?? ""}
+          className="rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2.5"
+        />
+      </label>
       <SideField
         label="English text"
         textName="englishText"

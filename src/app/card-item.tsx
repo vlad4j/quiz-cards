@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { Card } from "@/db/schema";
 import { deleteCard } from "./actions";
 import { CardForm } from "./card-form";
+import { LodAudioButton } from "./lod-audio-button";
 
 function SideImages({ urls }: { urls: string[] }) {
   if (urls.length === 0) return null;
@@ -47,9 +48,12 @@ export function CardItem({
   return (
     <li className="flex items-start gap-3 rounded-xl border border-black/10 dark:border-white/15 p-4">
       <div className="min-w-0 flex-1">
-        <p className="font-medium break-words whitespace-pre-wrap">
-          {card.foreignText}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="font-medium break-words whitespace-pre-wrap">
+            {card.foreignText}
+          </p>
+          <LodAudioButton urls={card.lodAudioUrls} />
+        </div>
         <SideImages urls={card.foreignImageUrls} />
         <p className="mt-1 text-sm opacity-70 break-words whitespace-pre-wrap">
           {card.englishText}

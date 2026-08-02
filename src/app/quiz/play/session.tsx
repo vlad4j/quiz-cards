@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Card } from "@/db/schema";
+import { LodAudioButton } from "../../lod-audio-button";
 
 export type Direction = "foreign-to-english" | "english-to-foreign" | "mixed";
 
@@ -151,9 +152,14 @@ export function QuizSession({
         <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
           {promptSide === "foreign" ? card.language : "English"}
         </p>
-        <p className="text-2xl font-bold break-words whitespace-pre-wrap">
-          {prompt}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-2xl font-bold break-words whitespace-pre-wrap">
+            {prompt}
+          </p>
+          {promptSide === "foreign" && (
+            <LodAudioButton urls={card.lodAudioUrls} />
+          )}
+        </div>
         <QuizImages urls={promptImages} />
         {revealed && (
           <>
@@ -161,9 +167,14 @@ export function QuizSession({
             <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
               {promptSide === "foreign" ? "English" : card.language}
             </p>
-            <p className="text-2xl font-bold break-words whitespace-pre-wrap text-indigo-600 dark:text-indigo-400">
-              {answer}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-2xl font-bold break-words whitespace-pre-wrap text-indigo-600 dark:text-indigo-400">
+                {answer}
+              </p>
+              {promptSide === "english" && (
+                <LodAudioButton urls={card.lodAudioUrls} />
+              )}
+            </div>
             <QuizImages urls={answerImages} />
           </>
         )}
